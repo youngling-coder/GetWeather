@@ -1,7 +1,3 @@
-"""
-TODO: refactor names on more relevant
-"""
-
 # Importing necessary libraries & modules
 import asyncio
 import json, os
@@ -62,7 +58,7 @@ async def handleDonations(call: CallbackQuery):
 
 
 @dp.callback_query(lambda call: call.data in ["imperial", "metric"])
-async def proceedSelectedUnitType(call: CallbackQuery):
+async def handleSelectedUnitSystem(call: CallbackQuery):
     global unit_system
 
     # Check which option has been chosen by user
@@ -94,7 +90,7 @@ async def greets(message: Message):
 
 
 @dp.message(lambda message: message.text == "🌡 Units")
-async def sendEditUnitSystemRequest(message: Message):
+async def sendSelectUnitSystemRequest(message: Message):
 
     # Asking to select unit system in inline menu when user want to change it
     await message.answer("Select unit system you prefer:", reply_markup=selectUnitTypeMarkup)
