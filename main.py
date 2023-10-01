@@ -14,7 +14,7 @@ from weather_report import WeatherReport
 logging.basicConfig(level=logging.INFO)
 
 # Parsing bot token
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+BOT_TOKEN = "6431542592:AAHR2lw8vlfnGt8h4YRGR3eTO7v8ujR6jSI"
 
 # Unit system variable is responsible for the unit system to be used for weather information
 unit_system = ""
