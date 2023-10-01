@@ -1,6 +1,6 @@
 # Importing necessary libraries & modules
 import asyncio
-import json
+import json, os
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
@@ -13,12 +13,8 @@ from weather_report import WeatherReport
 # Set logging level
 logging.basicConfig(level=logging.INFO)
 
-
-BOT_TOKEN = ""
-
 # Parsing bot token
-with open("config.json") as json_file:
-    BOT_TOKEN = json.load(json_file)["telegram_token"]
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # Unit system variable is responsible for the unit system to be used for weather information
 unit_system = ""
