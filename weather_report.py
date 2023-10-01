@@ -1,7 +1,7 @@
 # Import necessary libraries and modules
 from urllib import request, parse, error
 from aiogram.utils.markdown import hbold
-import json
+import json, os
 import flag
 
 
@@ -15,8 +15,7 @@ class WeatherReport:
         self.unit_system = unit_system
         self.__WEATHER_TOKEN = ""
 
-        with open("config.json") as json_file:
-            self.__WEATHER_TOKEN = json.load(json_file)["weather_token"]
+        self.__WEATHER_TOKEN = os.getenv("WEATHER_API_TOKEN")
         self.__WEATHER_URL = f"https://api.openweathermap.org/data/2.5/weather"
 
 
