@@ -126,7 +126,7 @@ class WeatherReport:
 {hbold('🌡 Current:')} {self.__weather["main"]["temp"]} {temperature_unit}
 {hbold('🌡️ Feels like:')} {self.__weather["main"]["feels_like"]} {temperature_unit}
 {hbold('💨 Wind:')} {wind_direction}, {self.__weather["wind"]["speed"]} {wind_speed_unit}
-In brief, {self.getBasicForecast()}"""
+\nIn brief, {self.getBasicForecast()}"""
 
         # Return beautified output
         return result
