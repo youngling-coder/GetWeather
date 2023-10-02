@@ -8,6 +8,8 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.markdown import hbold, hcode
+
+from location import Location
 from weather_report import WeatherReport
 
 # Set logging level
@@ -24,12 +26,13 @@ unit_system = ""
 dp = Dispatcher()
 
 # Create main bot control menu
+shareLocationButton = KeyboardButton(text="🗺 Weather via location", request_location=True)
 showDonateOptionsButton = KeyboardButton(text="💰 Donate")
 featuredCityListButton = KeyboardButton(text="🏅 Featured places (Available soon...)")
 changeUnitTypeButton = KeyboardButton(text="🌡 Units")
 setOrRemoveNotificationsButton = KeyboardButton(text="🔔 Notifications (Available soon...)")
 botControlMenuMarkup = ReplyKeyboardMarkup(keyboard=[[changeUnitTypeButton, showDonateOptionsButton],
-                                                     [featuredCityListButton, setOrRemoveNotificationsButton]],
+                                                     [featuredCityListButton, setOrRemoveNotificationsButton], [shareLocationButton]],
                                            is_persistent=True, resize_keyboard=True)
 
 
@@ -43,6 +46,11 @@ XMRDonateOptionButton = InlineKeyboardButton(text="💳 XMR Address", callback_d
 BTCDonateOptionButton = InlineKeyboardButton(text="💳 BTC Address", callback_data="btc")
 USDDonateOptionButton = InlineKeyboardButton(text="💳 PayPal", callback_data="usd")
 donateOptionsMarkup = InlineKeyboardMarkup(inline_keyboard=[[XMRDonateOptionButton, BTCDonateOptionButton], [USDDonateOptionButton]])
+
+
+"""@dp.message(lambda message: True if message.location else False)
+async def shareLocationHandler(message: Message):"""
+
 
 @dp.callback_query(lambda call: call.data in ["usd", "btc", "xmr"])
 async def handleDonations(call: CallbackQuery):
@@ -95,14 +103,14 @@ async def sendSelectUnitSystemRequest(message: Message):
     # Asking to select unit system in inline menu when user want to change it
     await message.answer("Select unit system you prefer:", reply_markup=selectUnitTypeMarkup)
 
-@dp.message(lambda message: message.text.startswith("💰 Donate"))
+@dp.message(lambda message: message.text == "💰 Donate")
 async def sendDonateOptionsList(message: Message):
 
     # Send thank you message to user and show ways to donate
     await message.answer("We're really glad you decided support our little project! These are the donation options available:", reply_markup=donateOptionsMarkup)
 
 
-@dp.message(lambda message: message.text.startswith("🔔 Notifications"))
+@dp.message(lambda message: message.text == "🔔 Notifications")
 async def setNotificationsRequest(message: Message):
 
     # Feature under development
@@ -110,20 +118,14 @@ async def setNotificationsRequest(message: Message):
         "We apologize for the inconvenience, but at the moment, this feature is in the development stage.☹.")
 
 
-@dp.message(lambda message: message.text.startswith("🏅 Featured places"))
+@dp.message(lambda message: message.text == "🏅 Featured places")
 async def sendEditUnitSystemRequest(message: Message):
 
     # Feature under development
     await message.answer(
         "We apologize for the inconvenience, but at the moment, this feature is in the development stage  ☹.")
 
-
-@dp.message()
-async def sendGetWeatherRequest(message: Message):
-
-    # Parse city/region name
-    city_name = message.text
-
+async def handleCityWeather(message: Message, city: str):
     if not unit_system:
 
         # If user hasn't selected any unit system then asking him to do this
@@ -131,7 +133,7 @@ async def sendGetWeatherRequest(message: Message):
     else:
 
         # Create WeatherReport instance to receive and process weather info
-        weather = WeatherReport(city=city_name, unit_system=unit_system)
+        weather = WeatherReport(city=city, unit_system=unit_system)
 
         # Get weather info and catching errors to res variable
         res = weather.getWeatherData(weather.URL())
@@ -148,6 +150,28 @@ async def sendGetWeatherRequest(message: Message):
             # Send desired city/region weather to user
             await message.answer(weather, reply_markup=botControlMenuMarkup)
 
+@dp.message()
+async def handleUserCityInput(message: Message):
+
+    # Parse city/region name
+
+    if message.location:
+        coordinates = (message.location.latitude, message.location.longitude)
+
+        location = Location(coordinates[0], coordinates[1])
+
+        query_url = location.URL()
+
+        city = location.handleCoordinatesAsCityName(query_url=query_url)
+
+    else:
+        city = message.text
+
+    print(city)
+    if city.startswith("❌"):
+        await message.reply(city)
+    else:
+        await handleCityWeather(message=message, city=city)
 
 async def main() -> None:
 
