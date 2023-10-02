@@ -177,3 +177,6 @@ async def main() -> None:
     # Start bot
     bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
     await dp.start_polling(bot)
+
+
+asyncio.run(main())
