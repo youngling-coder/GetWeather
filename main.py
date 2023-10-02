@@ -48,10 +48,6 @@ USDDonateOptionButton = InlineKeyboardButton(text="💳 PayPal", callback_data="
 donateOptionsMarkup = InlineKeyboardMarkup(inline_keyboard=[[XMRDonateOptionButton, BTCDonateOptionButton], [USDDonateOptionButton]])
 
 
-"""@dp.message(lambda message: True if message.location else False)
-async def shareLocationHandler(message: Message):"""
-
-
 @dp.callback_query(lambda call: call.data in ["usd", "btc", "xmr"])
 async def handleDonations(call: CallbackQuery):
 
@@ -97,20 +93,20 @@ async def greets(message: Message):
                          f"To start, select unit system:", reply_markup=selectUnitTypeMarkup)
 
 
-@dp.message(lambda message: "🌡 Units" in message.text)
+@dp.message(lambda message: changeUnitTypeButton.text == message.text)
 async def sendSelectUnitSystemRequest(message: Message):
 
     # Asking to select unit system in inline menu when user want to change it
     await message.answer("Select unit system you prefer:", reply_markup=selectUnitTypeMarkup)
 
-@dp.message(lambda message: "💰 Donate"  in message.text)
+@dp.message(lambda message: showDonateOptionsButton.text == message.text)
 async def sendDonateOptionsList(message: Message):
 
     # Send thank you message to user and show ways to donate
     await message.answer("We're really glad you decided support our little project! These are the donation options available:", reply_markup=donateOptionsMarkup)
 
 
-@dp.message(lambda message: "🔔 Notifications" in message.text)
+@dp.message(lambda message: setOrRemoveNotificationsButton.text == message.text)
 async def setNotificationsRequest(message: Message):
 
     # Feature under development
@@ -118,7 +114,7 @@ async def setNotificationsRequest(message: Message):
         "We apologize for the inconvenience, but at the moment, this feature is in the development stage.☹.")
 
 
-@dp.message(lambda message: "🏅 Featured places" in message.text)
+@dp.message(lambda message: featuredCityListButton.text == message.text)
 async def sendEditUnitSystemRequest(message: Message):
 
     # Feature under development
@@ -179,4 +175,5 @@ async def main() -> None:
     await dp.start_polling(bot)
 
 
+# Run main bot function
 asyncio.run(main())
