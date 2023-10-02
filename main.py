@@ -48,10 +48,6 @@ USDDonateOptionButton = InlineKeyboardButton(text="💳 PayPal", callback_data="
 donateOptionsMarkup = InlineKeyboardMarkup(inline_keyboard=[[XMRDonateOptionButton, BTCDonateOptionButton], [USDDonateOptionButton]])
 
 
-"""@dp.message(lambda message: True if message.location else False)
-async def shareLocationHandler(message: Message):"""
-
-
 @dp.callback_query(lambda call: call.data in ["usd", "btc", "xmr"])
 async def handleDonations(call: CallbackQuery):
 
