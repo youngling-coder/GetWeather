@@ -1,5 +1,5 @@
-from urllib import request, parse, error
-import json
+from urllib import request, error
+import json, os
 
 
 class Location:
@@ -8,7 +8,7 @@ class Location:
         self.lon = float(lon)
 
         self.__GEOCODE_URL = "http://api.openweathermap.org/geo/1.0/reverse?"
-        self.__api_token = "70bcd9fd2f6471b4018a4839d84f0b11"
+        self.__api_token = os.getenv("WEATHER_TOKEN")
         
     def URL(self) -> str:
 
