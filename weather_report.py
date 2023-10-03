@@ -15,7 +15,7 @@ class WeatherReport:
         self.unit_system = unit_system
         self.__WEATHER_TOKEN = ""
 
-        self.__WEATHER_TOKEN = os.getenv("WEATHER_TOKEN")
+        self.__WEATHER_TOKEN = os.getenv("OPENWEATHER_TOKEN")
         self.__WEATHER_URL = f"https://api.openweathermap.org/data/2.5/weather"
 
 

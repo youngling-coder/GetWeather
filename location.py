@@ -8,7 +8,7 @@ class Location:
         self.lon = float(lon)
 
         self.__GEOCODE_URL = "http://api.openweathermap.org/geo/1.0/reverse?"
-        self.__api_token = os.getenv("WEATHER_TOKEN")
+        self.__api_token = os.getenv("OPENWEATHER_TOKEN")
         
     def URL(self) -> str:
 

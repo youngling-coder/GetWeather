@@ -5,10 +5,12 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton, \
-    InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import Message, CallbackQuery
 from aiogram.utils.markdown import hbold, hcode
 
+from keyboard.BotControlMenu import *
+from keyboard.SelectUnitSystemMenu import *
+from keyboard.SelectDonateOptionMenu import *
 from location import Location
 from weather_report import WeatherReport
 
@@ -18,34 +20,11 @@ logging.basicConfig(level=logging.INFO)
 # Parsing bot token
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-
 # Unit system variable is responsible for the unit system to be used for weather information
 unit_system = ""
 
 # All handlers should be attached to the Router (or Dispatcher)
 dp = Dispatcher()
-
-# Create main bot control menu
-shareLocationButton = KeyboardButton(text="🗺 Weather via location", request_location=True)
-showDonateOptionsButton = KeyboardButton(text="💰 Donate")
-featuredCityListButton = KeyboardButton(text="🏅 Featured places (Available soon...)")
-changeUnitTypeButton = KeyboardButton(text="🌡 Units")
-setOrRemoveNotificationsButton = KeyboardButton(text="🔔 Notifications (Available soon...)")
-botControlMenuMarkup = ReplyKeyboardMarkup(keyboard=[[changeUnitTypeButton, showDonateOptionsButton],
-                                                     [featuredCityListButton, setOrRemoveNotificationsButton], [shareLocationButton]],
-                                           is_persistent=True, resize_keyboard=True)
-
-
-# Create inline unit system selection menu
-metricUnitButton = InlineKeyboardButton(text="🌡️ Imperial (°F, mi/h)", callback_data="imperial")
-imperialUnitButton = InlineKeyboardButton(text="🌡️ Metric (°C, m/s)", callback_data="metric")
-selectUnitTypeMarkup = InlineKeyboardMarkup(inline_keyboard=[[metricUnitButton, imperialUnitButton]])
-
-# Create inline menu for donation options
-XMRDonateOptionButton = InlineKeyboardButton(text="💳 XMR Address", callback_data="xmr")
-BTCDonateOptionButton = InlineKeyboardButton(text="💳 BTC Address", callback_data="btc")
-USDDonateOptionButton = InlineKeyboardButton(text="💳 PayPal", callback_data="usd")
-donateOptionsMarkup = InlineKeyboardMarkup(inline_keyboard=[[XMRDonateOptionButton, BTCDonateOptionButton], [USDDonateOptionButton]])
 
 
 @dp.callback_query(lambda call: call.data in ["usd", "btc", "xmr"])
@@ -59,6 +38,8 @@ async def handleDonations(call: CallbackQuery):
             await call.message.answer(f"<b>XMR:</b> {hcode('48F313vAnVVdK9SzXUKoVyjeUyZ2Ad3z44PMkJPCa54oDgKDxQsvRwA9d5od7XhwjgUoq4mC6A6XkFmJta4B3NbWUwKGHf6')}")
         case "btc":
             await call.message.answer(f"<b>BTC:</b> {hcode('3NSsKDBcWJEoDKHdxZ7uQiDR42MkbVNm26')}")
+
+    await call.answer()
 
 
 @dp.callback_query(lambda call: call.data in ["imperial", "metric"])
@@ -80,7 +61,8 @@ async def handleSelectedUnitSystem(call: CallbackQuery):
         unit_system = "metric"
         await call.message.answer(f"You've chosen {hbold('Metric')} as primary unit system!"
                                   f"\nYou can change it later using {hbold('🌡 Units')}.")
-
+    
+    await call.answer()
     await call.message.answer("✅ Now you can send me any city, region or village to get latest weather info!",
                               reply_markup=botControlMenuMarkup)
 
@@ -90,14 +72,14 @@ async def greets(message: Message):
 
     # Send greeting message when user sends /start to bot
     await message.answer(f"Hello, {message.from_user.full_name}! Welcome to {hbold('GetWeather')} Bot!👋\n"
-                         f"To start, select unit system:", reply_markup=selectUnitTypeMarkup)
+                         f"To start, select unit system:", reply_markup=selectUnitSystemMarkup)
 
 
 @dp.message(lambda message: changeUnitTypeButton.text == message.text)
 async def sendSelectUnitSystemRequest(message: Message):
 
     # Asking to select unit system in inline menu when user want to change it
-    await message.answer("Select unit system you prefer:", reply_markup=selectUnitTypeMarkup)
+    await message.answer("Select unit system you prefer:", reply_markup=selectUnitSystemMarkup)
 
 @dp.message(lambda message: showDonateOptionsButton.text == message.text)
 async def sendDonateOptionsList(message: Message):
@@ -125,7 +107,7 @@ async def handleCityWeather(message: Message, city: str):
     if not unit_system:
 
         # If user hasn't selected any unit system then asking him to do this
-        await message.answer("⚠ To start using bot, select unit system:", reply_markup=selectUnitTypeMarkup)
+        await message.answer("⚠ To start using bot, select unit system:", reply_markup=selectUnitSystemMarkup)
     else:
 
         # Create WeatherReport instance to receive and process weather info
