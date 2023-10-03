@@ -11,6 +11,8 @@ from aiogram.utils.markdown import hbold, hcode
 from keyboard.BotControlMenu import *
 from keyboard.SelectUnitSystemMenu import *
 from keyboard.SelectDonateOptionMenu import *
+
+from database import Database
 from location import Location
 from weather_report import WeatherReport
 
@@ -20,12 +22,11 @@ logging.basicConfig(level=logging.INFO)
 # Parsing bot token
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-# Unit system variable is responsible for the unit system to be used for weather information
-unit_system = ""
-
 # All handlers should be attached to the Router (or Dispatcher)
 dp = Dispatcher()
 
+# Create database instance to handle work with user settings
+db = Database()
 
 @dp.callback_query(lambda call: call.data in ["usd", "btc", "xmr"])
 async def handleDonations(call: CallbackQuery):
@@ -51,35 +52,37 @@ async def handleSelectedUnitSystem(call: CallbackQuery):
 
         # If user has chosen imperial unit system then set
         # imperial system as default and show appropriate message
-        unit_system = "imperial"
-        await call.message.answer(f"You've chosen {hbold('Imperial')} as primary unit!"
-                                  f"\nYou can change it later using {hbold('🌡 Units')}.")
+        db.updateUnitSystem(uID=str(call.message.chat.id), unitSystem="imperial")
     elif call.data == "metric":
 
         # If user has chosen metric unit system then set metric
         # system as default and show appropriate message
-        unit_system = "metric"
-        await call.message.answer(f"You've chosen {hbold('Metric')} as primary unit system!"
-                                  f"\nYou can change it later using {hbold('🌡 Units')}.")
+        db.updateUnitSystem(uID=str(call.message.chat.id), unitSystem="metric")
     
-    await call.answer()
-    await call.message.answer("✅ Now you can send me any city, region or village to get latest weather info!",
+    await call.message.answer(f"You've chosen {hbold(call.data.capitalize())} as primary unit system! "
+                              f"You can change it later using {hbold('🌡 Units')}.\n\n"
+                              f"✅ Now you can send me any city, region or village to get latest weather info!",
                               reply_markup=botControlMenuMarkup)
+        
+    await call.answer()
 
 
 @dp.message(CommandStart())
 async def greets(message: Message):
 
+    if not db.userExists(uID=message.chat.id):
+        db.addNewUser(uID=message.chat.id)
     # Send greeting message when user sends /start to bot
-    await message.answer(f"Hello, {message.from_user.full_name}! Welcome to {hbold('GetWeather')} Bot!👋\n"
-                         f"To start, select unit system:", reply_markup=selectUnitSystemMarkup)
+    await message.answer(text=f"Hello, {message.from_user.full_name}! Welcome to {hbold('GetWeather')} Bot!👋\n",
+                         reply_markup=botControlMenuMarkup)
 
 
-@dp.message(lambda message: changeUnitTypeButton.text == message.text)
+@dp.message(lambda message: changeUnitSystemButton.text == message.text)
 async def sendSelectUnitSystemRequest(message: Message):
 
     # Asking to select unit system in inline menu when user want to change it
-    await message.answer("Select unit system you prefer:", reply_markup=selectUnitSystemMarkup)
+    await message.answer("Select unit system you" 
+                         f"prefer ({hbold('Metric')} if ignored):", reply_markup=selectUnitSystemMarkup)
 
 @dp.message(lambda message: showDonateOptionsButton.text == message.text)
 async def sendDonateOptionsList(message: Message):
@@ -93,7 +96,7 @@ async def setNotificationsRequest(message: Message):
 
     # Feature under development
     await message.answer(
-        "We apologize for the inconvenience, but at the moment, this feature is in the development stage.☹.")
+        "We apologize for the inconvenience, but at the moment, this feature is in the development stage ☹.")
 
 
 @dp.message(lambda message: featuredCityListButton.text == message.text)
@@ -101,32 +104,29 @@ async def sendEditUnitSystemRequest(message: Message):
 
     # Feature under development
     await message.answer(
-        "We apologize for the inconvenience, but at the moment, this feature is in the development stage  ☹.")
+        "We apologize for the inconvenience, but at the moment, this feature is in the development stage ☹.")
 
 async def handleCityWeather(message: Message, city: str):
-    if not unit_system:
 
-        # If user hasn't selected any unit system then asking him to do this
-        await message.answer("⚠ To start using bot, select unit system:", reply_markup=selectUnitSystemMarkup)
+    unit_system = db.getUnitSystemFromUser(uID=message.chat.id)
+    
+    # Create WeatherReport instance to receive and process weather info
+    weather = WeatherReport(city=city, unit_system=unit_system)
+
+    # Get weather info and catching errors to res variable
+    res = weather.getWeatherData(weather.URL())
+
+    if res:
+
+        # Send appropriate error message to user if there're any errors
+        await message.answer(res, reply_markup=botControlMenuMarkup)
     else:
 
-        # Create WeatherReport instance to receive and process weather info
-        weather = WeatherReport(city=city, unit_system=unit_system)
+        # Get formatted weather info to show it to user
+        weather = weather.beautify()
 
-        # Get weather info and catching errors to res variable
-        res = weather.getWeatherData(weather.URL())
-
-        if res:
-
-            # Send appropriate error message to user if there're any errors
-            await message.answer(res, reply_markup=botControlMenuMarkup)
-        else:
-
-            # Get formatted weather info to show it to user
-            weather = weather.beautify()
-
-            # Send desired city/region weather to user
-            await message.answer(weather, reply_markup=botControlMenuMarkup)
+        # Send desired city/region weather to user
+        await message.answer(weather, reply_markup=botControlMenuMarkup)
 
 @dp.message()
 async def handleUserCityInput(message: Message):
