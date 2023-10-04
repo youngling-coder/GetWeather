@@ -82,7 +82,7 @@ async def sendSelectUnitSystemRequest(message: Message):
 
     # Asking to select unit system in inline menu when user want to change it
     await message.answer("Select unit system you" 
-                         f"prefer ({hbold('Metric')} if ignored):", reply_markup=selectUnitSystemMarkup)
+                         f" prefer ({hbold('Metric')} if ignored, or selected before):", reply_markup=selectUnitSystemMarkup)
 
 @dp.message(lambda message: showDonateOptionsButton.text == message.text)
 async def sendDonateOptionsList(message: Message):
