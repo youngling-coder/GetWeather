@@ -60,8 +60,7 @@ async def handleSelectedUnitSystem(call: CallbackQuery):
         db.updateUnitSystem(uID=str(call.message.chat.id), unitSystem="metric")
     
     await call.message.answer(f"You've chosen {hbold(call.data.capitalize())} as primary unit system! "
-                              f"You can change it later using {hbold('🌡 Units')}.\n\n"
-                              f"✅ Now you can send me any city, region or village to get latest weather info!",
+                              f"You can change it later using {hbold('🌡 Units')}.",
                               reply_markup=botControlMenuMarkup)
         
     await call.answer()
@@ -73,7 +72,8 @@ async def greets(message: Message):
     if not db.userExists(uID=message.chat.id):
         db.addNewUser(uID=message.chat.id)
     # Send greeting message when user sends /start to bot
-    await message.answer(text=f"Hello, {message.from_user.full_name}! Welcome to {hbold('GetWeather')} Bot!👋\n",
+    await message.answer(text=f"Hello, {message.from_user.full_name}! Welcome to {hbold('GetWeather')} Bot!👋"
+                         f" Now you can send me any city or region to get latest weather info!",
                          reply_markup=botControlMenuMarkup)
 
 
