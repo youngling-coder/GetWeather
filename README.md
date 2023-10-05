@@ -23,6 +23,14 @@ To get weather information, you have two options:
 2. **By Geolocation:**
    - Share your geolocation with the bot, and it will give you the weather forecast for your current location.
 
+## Features
+
+1. **Favorite places**
+   - Add & Remove places from Featured.
+
+2. **Weather notifications**
+   - Revceive weather info about one of your Featured place with dinamic interval. (Don't forget enable Telegram notifications!)
+   
 ## Getting Started
 
 To use Weather Forecast Bot, follow these steps:
