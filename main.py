@@ -93,7 +93,7 @@ async def askToSendFeaturePlace(call: CallbackQuery):
     if places:
         index = 0
         for p in places:
-            featuredPlacesMarkup.inline_keyboard.insert(index, [InlineKeyboardButton(text=f"🏙 {p}", callback_data=f"")])
+            featuredPlacesMarkup.inline_keyboard.insert(index, [InlineKeyboardButton(text=f"🏙 {p}", callback_data=f"featuredPlace")])
             index += 1
     
     await call.message.answer(text=f"{hbold('🏅 Featured places')}", reply_markup=featuredPlacesMarkup)
