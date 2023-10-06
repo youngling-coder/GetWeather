@@ -74,10 +74,15 @@ async def removeFeaturedPlaceHandler(call: CallbackQuery):
     
     usersDB.setCommand(uID=call.message.chat.id, chain="removeFeaturedPlace")
 
-    await call.message.answer(text=f"▶ Send me city or region name from {hbold('Featured Places')}"
+    await call.message.answer(text=f"▶ Send me city or region name from {hbold('Featured Places')} "
                               f"list to remove it/them to the {hbold('Featured Places')}. "
                               "You can remove multiple places separating them by colon (':').",
                               reply_markup=cancelMarkup)
+    await call.answer()
+    
+@dp.callback_query(lambda call: call.data[0] in [str(i) for i in range(0, 5)])
+async def getWeatherFeatured(call: CallbackQuery):
+    await handleCityWeather(message=call.message, city=call.data[1:])
     await call.answer()
     
 @dp.callback_query(lambda call: call.data == "featuredPlaces")
@@ -89,11 +94,14 @@ async def askToSendFeaturePlace(call: CallbackQuery):
 
     featuredPlacesMarkup.inline_keyboard = [[addFeaturedPlace], [removeFeaturedPlace]]
 
-    print(f"Places {places}")
     if places:
         index = 0
         for p in places:
+<<<<<<< HEAD
             featuredPlacesMarkup.inline_keyboard.insert(index, [InlineKeyboardButton(text=f"🏙 {p}", callback_data=f"featuredPlace")])
+=======
+            featuredPlacesMarkup.inline_keyboard.insert(index, [InlineKeyboardButton(text=f"🏙 {p}", callback_data=f"{index}{p}")])
+>>>>>>> test
             index += 1
     
     await call.message.answer(text=f"{hbold('🏅 Featured places')}", reply_markup=featuredPlacesMarkup)
@@ -177,10 +185,21 @@ async def handleCityWeather(message: Message, city: str):
 async def handleUserCityInput(message: Message):
 
     commandChain = usersDB.getCommand(uID=message.chat.id)
-
+    place = message.text
+    places = usersDB.getFeaturedPlaces(uID=message.chat.id)
+    
     if commandChain == "addFeaturedPlace":
-        usersDB.setCommand(uID=message.chat.id, chain="")
-        usersDB.addPlaceToFeaturedList(uID=message.chat.id, place=message.text)
+        if place in places:
+            await message.answer(text=f"⚠ {hbold(place)} already exists in {hbold('Featured Places')}! "
+                                 "Specify a more precise name or add other place.")
+        else:
+            if len(places) < 5:
+                usersDB.setCommand(uID=message.chat.id, chain="")
+                usersDB.addPlaceToFeaturedList(uID=message.chat.id, place=place)
+                await message.answer(text=f"✅ {hbold(place)} added to the {hbold('Featured Places')}! ")
+            else:
+                await message.answer(text=f"⚠ List of {hbold('Featured Places')} is full! "
+                                     "Delete any place to free up the list.")
     elif commandChain == "removeFeaturedPlace":
         usersDB.setCommand(uID=message.chat.id, chain="")
         usersDB.removePlaceFromFeatured(uID=message.chat.id, place=message.text)
@@ -195,7 +214,7 @@ async def handleUserCityInput(message: Message):
             city = location.handleCoordinatesAsCityName(query_url=query_url)
 
         else:
-            city = message.text
+            city = place
 
         if city.startswith("❌"):
             await message.reply(city)
