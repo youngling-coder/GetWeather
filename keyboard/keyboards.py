@@ -22,8 +22,8 @@ donateOptionsMarkup = InlineKeyboardMarkup(inline_keyboard=[[XMRDonateOptionButt
 # Create inline settings inline markup
 changeUnitSystemButton = InlineKeyboardButton(text="🌡 Unit system", callback_data="setUnits")
 featuredPlacesListButton = InlineKeyboardButton(text="🏅 Featured places", callback_data="featuredPlaces")
-setNotificationsButton = InlineKeyboardButton(text="🔔 Notifications", callback_data="setNotifications")
-settingsInlineMarkup = InlineKeyboardMarkup(inline_keyboard=[[changeUnitSystemButton], [featuredPlacesListButton], [setNotificationsButton]])
+# setNotificationsButton = InlineKeyboardButton(text="🔔 Notifications", callback_data="setNotifications")
+settingsInlineMarkup = InlineKeyboardMarkup(inline_keyboard=[[changeUnitSystemButton], [featuredPlacesListButton]])
 
 # Create featured places control inline markup
 addFeaturedPlace = InlineKeyboardButton(text="➕ Add Featured Place", callback_data="addFeaturedPlace")

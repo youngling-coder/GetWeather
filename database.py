@@ -10,68 +10,68 @@ class Database:
 
     def userExists(self, uID: str) -> bool:
 
-        # Return does user exists
-        query = "select id from usersInfo where id = ?"
-        res = self.__cursor.execute(query, (uID,)).fetchone()
-        return bool(res)
+        with self.__conn:
+            # Return does user exists
+            query = "select id from usersInfo where id = ?"
+            res = self.__cursor.execute(query, (uID,)).fetchone()
+            return bool(res)
 
     def updateNotificationStatus(self, uID: str, status: bool):
 
-        # Update notification status
-        query = "update usersInfo set notifications = ? where id = ?"
-        self.__cursor.execute(query, (status, uID))
-    
-        self.__conn.commit()
+        with self.__conn:
+            # Update notification status
+            query = "update usersInfo set notifications = ? where id = ?"
+            self.__cursor.execute(query, (status, uID))
         
     def updateUnitSystem(self, uID: str, unitSystem: str):
         
-        # Update subscription status
-        query = "update usersInfo set unitSystem = ? where id = ?"
-        self.__cursor.execute(query, (unitSystem, uID))
-        
-        self.__conn.commit()
+        with self.__conn:
+            # Update subscription status
+            query = "update usersInfo set unitSystem = ? where id = ?"
+            self.__cursor.execute(query, (unitSystem, uID))
 
     def getUnitSystemFromUser(self, uID: str) -> str:
         
-        # Obtain unit system from user with specific uID:
-        query = "select unitSystem from usersInfo where id = ?"
-        res = self.__cursor.execute(query, (uID,)).fetchone()[0]
+        with self.__conn:
+            # Obtain unit system from user with specific uID:
+            query = "select unitSystem from usersInfo where id = ?"
+            res = self.__cursor.execute(query, (uID,)).fetchone()[0]
 
-        return str(res)
+            return str(res)
 
     def getCommand(self, uID: str) -> str:
 
-        # Obtain command
-        query = "select command from usersInfo where id = ?"
-        res = self.__cursor.execute(query, (uID,)).fetchone()[0]
+        with self.__conn:
+            # Obtain command
+            query = "select command from usersInfo where id = ?"
+            res = self.__cursor.execute(query, (uID,)).fetchone()[0]
 
-        return str(res)
+            return str(res)
     
     def resetCommand(self, uID: str):
 
-        # Reset command
-        query = "update usersInfo set command = ? where id = ?"
-        self.__cursor.execute(query, ("", uID))
-
-        self.__conn.commit()
+        with self.__conn:
+            # Reset command
+            query = "update usersInfo set command = ? where id = ?"
+            self.__cursor.execute(query, ("", uID))
         
     def setCommand(self, uID: str, chain: str):
         
-        # Return requested command
-        query = "update usersInfo set command = ? where id = ?"
-        self.__cursor.execute(query, (chain, uID))
-        
-        self.__conn.commit()
+        with self.__conn:
+            # Return requested command
+            query = "update usersInfo set command = ? where id = ?"
+            self.__cursor.execute(query, (chain, uID))
 
     def getFeaturedPlaces(self, uID: str) -> list[str]:
 
         # Obtain featured places for specific user
-        query = "select featuredPlaces from usersInfo where id = ?"
-        res = self.__cursor.execute(query, (uID,)).fetchone()[0].split(":")
+        with self.__conn:
+            query = "select featuredPlaces from usersInfo where id = ?"
+            res = self.__cursor.execute(query, (uID,)).fetchone()[0].split(":")
 
-        res = list(filter(lambda place: place if place else False, res))
+            res = list(filter(lambda place: place if place else False, res))
 
-        return res
+            return res
     
     def removePlaceFromFeatured(self, uID: str, place: str):
 
@@ -92,30 +92,28 @@ class Database:
 
     def addPlaceToFeaturedList(self, uID: str , place: str, appendMode=True):
 
-        updated = place
-        if appendMode:
-            # Get existing places
-            existing = self.getFeaturedPlaces(uID=uID)
+        with self.__conn:
+            updated = place
+            if appendMode:
+                # Get existing places
+                existing = self.getFeaturedPlaces(uID=uID)
 
-            # Join new place to the end
-            toAdd = place.split(":")
-            toAdd = [pls.strip(" ") for pls in toAdd]
-            existing.extend(toAdd)
-            existing = list(filter(lambda pls: pls if pls else False, existing))
-            updated = ":".join(existing)
-            print(f"Updated {updated}")
+                # Join new place to the end
+                toAdd = place.split(":")
+                toAdd = [pls.strip(" ") for pls in toAdd]
+                existing.extend(toAdd)
+                existing = list(filter(lambda pls: pls if pls else False, existing))
+                updated = ":".join(existing)
 
-        query = "update usersInfo set featuredPlaces = ? where id = ?"
-        self.__cursor.execute(query, (updated, uID))
-
-        self.__conn.commit()
+            query = "update usersInfo set featuredPlaces = ? where id = ?"
+            self.__cursor.execute(query, (updated, uID))
 
     def addNewUser(self, uID: str, unitSystem="metric"):
 
-        # Add user to database:
-        query = "insert into usersInfo values (?, ?, ?, ?)"
-        self.__cursor.execute(query, (uID, unitSystem, False, ""))
-        self.__conn.commit()
+        with self.__conn:
+            # Add user to database:
+            query = "insert into usersInfo values (?, ?, ?, ?)"
+            self.__cursor.execute(query, (uID, unitSystem, False, ""))
 
 
     def close(self):
