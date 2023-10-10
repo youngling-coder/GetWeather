@@ -122,7 +122,7 @@ class WeatherReport:
         # Beautify resulting weather info
         result = f"""
 {hbold('🏙️ City:')} {self.__weather["name"]}, {self.__weather["sys"]["country"]} {country_code}
-{hbold('🌡 Temperature:')} {self.__weather["main"]["temp"]} {temperature_unit}
+{hbold('🌡️ Temperature:')} {self.__weather["main"]["temp"]} {temperature_unit}
 {hbold('🌡️ It feels like:')} {self.__weather["main"]["feels_like"]} {temperature_unit}
 {hbold('💨 Wind:')} {wind_direction}, {self.__weather["wind"]["speed"]} {wind_speed_unit}
 \nIn brief, {self.getBasicForecast()}"""

@@ -7,15 +7,15 @@ class Location:
         self.lat = float(lat)
         self.lon = float(lon)
 
-        self.__GEOCODE_URL = "http://api.openweathermap.org/geo/1.0/reverse?"
-        self.__api_token = os.getenv("OPENWEATHER_TOKEN")
+        self.__GEOCODE_URL = "https://nominatim.openstreetmap.org/reverse?format=json&"
         
     def URL(self) -> str:
 
         # Format API url for specific coordinates
         result_url = self.__GEOCODE_URL + f"lat={self.lat}"
         result_url = result_url + f"&lon={self.lon}"
-        result_url = result_url + f"&appid={self.__api_token}"
+
+        print(result_url)
 
         # Return final url
         return result_url
@@ -42,8 +42,15 @@ class Location:
         try:
 
             # Return city as string
-            data = json.loads(data)[0]
-            return str(data["name"] + ", " + data["country"])
+            data = json.loads(data)
+            if 'city' in list(data['address'].keys()):
+                return data["address"]["city"] + ", " + data["address"]["country_code"]
+            elif 'town' in list(data['address'].keys()):
+                return data["address"]["town"] + ", " + data["address"]["country_code"]
+            elif 'village' in list(data['address'].keys()):
+                return data["address"]["village"] + ", " + data["address"]["country_code"]
+            else:
+                return data["address"]["country_code"]
         
         except json.JSONDecodeError:
 
