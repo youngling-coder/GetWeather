@@ -28,7 +28,7 @@ To get weather information, you have two options:
 1. **Favorite places**
    - Add & Remove places from Featured.
 
-2. **Weather notifications**
+2. **Weather notifications (Not implemented yet!)**
    - Revceive weather info about one of your Featured place with dinamic interval. (Don't forget enable Telegram notifications!)
    
 ## Getting Started
