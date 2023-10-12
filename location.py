@@ -15,8 +15,6 @@ class Location:
         result_url = self.__GEOCODE_URL + f"lat={self.lat}"
         result_url = result_url + f"&lon={self.lon}"
 
-        print(result_url)
-
         # Return final url
         return result_url
 
