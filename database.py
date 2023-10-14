@@ -112,8 +112,8 @@ class Database:
 
         with self.__conn:
             # Add user to database:
-            query = "insert into usersInfo values (?, ?, ?, ?)"
-            self.__cursor.execute(query, (uID, unitSystem, False, ""))
+            query = "insert into usersInfo values (?, ?, ?, ?, ?)"
+            self.__cursor.execute(query, (uID, unitSystem, False, "", ""))
 
 
     def close(self):

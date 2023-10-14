@@ -202,7 +202,6 @@ async def handleUserCityInput(message: Message):
     else:
         if message.location:
             coordinates = (message.location.latitude, message.location.longitude)
-
             location = Location(coordinates[0], coordinates[1])
 
             query_url = location.URL()
